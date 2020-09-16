@@ -1,1 +1,30 @@
-<h1>Hello World</h1>
+<mat-card>
+  <mat-card-title>Tic Toc Toe</mat-card-title>
+  <mat-card-subtitle>
+    <mat-grid-list cols="2" rowHeight="10:1">
+      <mat-grid-tile>
+        <h1>Ordinateur</h1>
+      </mat-grid-tile>
+      <mat-grid-tile>
+        <h1>Score Joueur</h1>
+      </mat-grid-tile>
+      <mat-grid-tile *ngFor="let s of listScore">
+        <h2>{{s}}</h2>
+      </mat-grid-tile>
+
+
+    </mat-grid-list>
+  </mat-card-subtitle>
+  <mat-card-content>
+
+    <mat-grid-list cols="3" rowHeight="4:1">
+      <mat-grid-tile *ngFor="let s of listJeu" (click)="ClickJoueur(s)">
+        <h1 *ngIf="s.resultat=='O'">{{s.resultat}}</h1>
+        <h1 *ngIf="s.resultat=='X'" class="color">{{s.resultat}}</h1>
+        <h1 *ngIf="s.resultat==' '">{{s.resultat}}</h1>
+      </mat-grid-tile>
+
+    </mat-grid-list>
+
+  </mat-card-content>
+</mat-card>
