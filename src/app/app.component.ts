@@ -326,7 +326,7 @@ export class AppComponent implements OnInit {
             prob.diagonal.occurence[1]++;
             prob.diagonal.exclude++;
             if (prob.diagonal.occurence[1] == 2) {
-              prob.diagonal.value.ordinateur += 1 / 3;
+              prob.diagonal.value.ordinateur += 1 / 2;
             }
             if (prob.diagonal.value.joueur > 0) {
               prob.diagonal.value.ordinateur -= 1 / 3;
@@ -348,7 +348,7 @@ export class AppComponent implements OnInit {
               prob.horizontal[i].occurence[1]++;
               prob.horizontal[i].exclude++;
               if (prob.horizontal[i].occurence[1] == 2) {
-                prob.horizontal[i].value.ordinateur += 1 / 3;
+                prob.horizontal[i].value.ordinateur += 1 / 2;
               }
               if (prob.horizontal[i].value.joueur > 0) {
                 prob.horizontal[i].value.ordinateur -= 1 / 3;
@@ -369,7 +369,7 @@ export class AppComponent implements OnInit {
               prob.vertical[i].occurence[1]++;
               prob.vertical[i].exclude++;
               if (prob.vertical[i].occurence[1] == 2) {
-                prob.vertical[i].value.ordinateur += 1 / 3;
+                prob.vertical[i].value.ordinateur += 1 / 2;
               }
               if (prob.vertical[i].value.joueur > 0) {
                 prob.vertical[i].value.ordinateur -= 1 / 3;
@@ -396,7 +396,7 @@ export class AppComponent implements OnInit {
             prob.diagonalInverse.occurence[1]++;
             prob.diagonalInverse.exclude++;
             if (prob.diagonalInverse.occurence[1] == 2) {
-              prob.diagonalInverse.value.ordinateur += 1 / 3;
+              prob.diagonalInverse.value.ordinateur += 1 / 2;
             }
             if (prob.diagonalInverse.value.joueur > 0) {
               prob.diagonalInverse.value.ordinateur -= 1 / 3;
@@ -409,10 +409,10 @@ export class AppComponent implements OnInit {
       //Max
       let maxH = {
         pourcentage: 0,
-        ligne: -1
+        ligne: 0
       }, maxV = {
         pourcentage: 0,
-        col: -1
+        col: 0
       }, maxD = 0, maxDI = 0;
       let cpt = 0;
       for (let s of prob.horizontal) {
