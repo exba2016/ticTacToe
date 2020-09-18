@@ -49,121 +49,459 @@ export class AppComponent implements OnInit {
     }
     return null;
   }
-  aleatoireMove(stat = null) {
-    let x = -1, y = -1;
-    let lo = this.getListJeu("ordinateur")
-    let lj = this.getListJeu("joueur");
-    let cpt = 0;
-    while (!(x >= 0 && y >= 0 && lj[x][y] == 1 && lo[x][y] == 1)) {
-      x = Math.floor((Math.random() * 3) + 0);
-      y = Math.floor((Math.random() * 3) + 0);
-      cpt++;
-
-
-    }
-    if (stat) {
-      let rs = this.listJeu.filter(s => s.i == x && s.j == y)[0];
-      let index = this.listJeu.indexOf(rs);
-      rs.resultat = "O";
-      let temp = this.listJeu;
-      temp[index] = rs;
-      console.log(" hello world ", this.nbMoves);
-      return temp;
-    } else {
-
-
-      let rs = this.listJeu.filter(s => s.i == x && s.j == y)[0];
-      let index = this.listJeu.indexOf(rs);
-      rs.resultat = "O";
-      let temp = this.listJeu;
-      this.listJeu[index] = rs;
-      let resultat = this.verifVictory();
-      if (resultat == 0) {
-        console.log("victoire ordinateur");
-
-      } else if (resultat == 1) {
-        console.log("victoire joueur");
-
-      }
-    }
-    return null;
-
-  }
+  
 
   ordinateurMoves() {
-    
-      let mvJoueur = this.getListJeu("joueur");
-      let mvOrdinateur = this.getListJeu("ordinateur");
-      for (let i = 0; i < 3; i++){
-        for (let j = 0; j < 3; j++){
-          mvOrdinateur[i][j]=mvJoueur[i][j]*mvOrdinateur[i][j];
-        }
+
+    let mvJoueur = this.getListJeu("joueur");
+    let mvOrdinateur = this.getListJeu("ordinateur");
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        mvOrdinateur[i][j] = mvJoueur[i][j] * mvOrdinateur[i][j];
       }
-      console.log("mvOrdinateur ",mvOrdinateur);
-      
-      mvOrdinateur=this.isVictory(mvOrdinateur);
-      console.log("prob ordinateur ", mvOrdinateur);
-      let max={
-        value:0,
-        i:0,
-        j:0
+    }
+    console.log("mvOrdinateur ", mvOrdinateur);
+
+    let resultatProb = this.successProbabilite();
+    let xy = {
+      x: -1,
+      y: -1
+    };
+    do {
+      let max = [{
+        pourcentage: resultatProb.horizontal.pourcentage,
+        ligne: resultatProb.horizontal.ligne,
+        col: -1,
+        is: "horizontal"
+      }];
+      let maxEnd = {
+        pourcentage: 0,
+        ligne: -1,
+        col: -1,
+        is: ""
       };
-      for (let i = 0; i < 3; i++){
-        for (let j = 0; j < 3; j++){
-          if(mvOrdinateur[i][j] >max.value){
-            max.value=mvOrdinateur[i][j];
-            max.i=i;
-            max.j=j;
+      if (resultatProb.vertical.pourcentage > max[0].pourcentage && !max.includes({
+        pourcentage: resultatProb.vertical.pourcentage,
+        ligne: -1,
+        col: resultatProb.vertical.col,
+        is: "vertical"
+      })) {
+        max = [{
+          pourcentage: resultatProb.vertical.pourcentage,
+          ligne: -1,
+          col: resultatProb.vertical.col,
+          is: "vertical"
+        }];
+      } else if (resultatProb.vertical.pourcentage >= max[0].pourcentage && !max.includes({
+        pourcentage: resultatProb.vertical.pourcentage,
+        ligne: -1,
+        col: resultatProb.vertical.col,
+        is: "vertical"
+      })) {
+        max.push({
+          pourcentage: resultatProb.vertical.pourcentage,
+          ligne: -1,
+          col: resultatProb.vertical.col,
+          is: "vertical"
+        });
+      }
+      if (resultatProb.diagonal.pourcentage > max[0].pourcentage && !max.includes({
+        pourcentage: resultatProb.diagonal.pourcentage,
+        ligne: -1,
+        col: -1,
+        is: "diagonal"
+      })) {
+        max = [{
+          pourcentage: resultatProb.diagonal.pourcentage,
+          ligne: -1,
+          col: -1,
+          is: "diagonal"
+        }];
+      } else if (resultatProb.diagonal.pourcentage >= max[0].pourcentage && !max.includes({
+        pourcentage: resultatProb.diagonal.pourcentage,
+        ligne: -1,
+        col: -1,
+        is: "diagonal"
+      })) {
+        max.push({
+          pourcentage: resultatProb.diagonal.pourcentage,
+          ligne: -1,
+          col: -1,
+          is: "diagonal"
+        });
+      }
+
+      if (resultatProb.diagonalInverse.pourcentage > max[0].pourcentage && !max.includes({
+        pourcentage: resultatProb.diagonalInverse.pourcentage,
+        ligne: -1,
+        col: -1,
+        is: "diagonalInverse"
+      })) {
+        max = [{
+          pourcentage: resultatProb.diagonalInverse.pourcentage,
+          ligne: -1,
+          col: -1,
+          is: "diagonalInverse"
+        }];
+      } else if (resultatProb.diagonalInverse.pourcentage >= max[0].pourcentage && !max.includes({
+        pourcentage: resultatProb.diagonalInverse.pourcentage,
+        ligne: -1,
+        col: -1,
+        is: "diagonalInverse"
+      })) {
+        max.push({
+          pourcentage: resultatProb.diagonal.pourcentage,
+          ligne: -1,
+          col: -1,
+          is: "diagonalInverse"
+        });
+      }
+
+
+      if (max.length > 1) {
+        let choix = Math.floor((Math.random() * max.length) + 0);
+        maxEnd = max[choix];
+      } else {
+        maxEnd = max[0];
+      }
+      console.log("max ", max);
+      console.log("maxEND ", maxEnd);
+
+      if (maxEnd.is == "horizontal") {
+        let y = -1;
+        do {
+          y = Math.floor((Math.random() * 3) + 0);
+          if (mvOrdinateur[maxEnd.ligne][y] == 0) {
+            y = -1;
           }
+        } while (y == -1);
+        xy.x = maxEnd.ligne;
+        xy.y = y;
+
+      } else if (maxEnd.is == "vertical") {
+        let x = -1;
+        do {
+          x = Math.floor((Math.random() * 3) + 0);
+          if (mvOrdinateur[x][maxEnd.col] == 0) {
+            x = -1;
+          }
+        } while (x == -1);
+        xy.x = x;
+        xy.y = maxEnd.col;
+
+      } else if (maxEnd.is == "diagonal") {
+        let y = -1;
+        do {
+          y = Math.floor((Math.random() * 3) + 0);
+          if (mvOrdinateur[y][y] == 0) {
+            y = -1;
+          }
+        } while (y == -1);
+        xy.x = y;
+        xy.y = y;
+
+      } else {
+        let y = -1;
+        do {
+          y = Math.floor((Math.random() * 3) + 0);
+          if (mvOrdinateur[y][2 - y] == 0) {
+            y = -1;
+          }
+        } while (y == -1);
+        xy.x = y;
+        xy.y = 2 - y;
+        console.log("xy ", xy);
+
+
+      }
+
+
+    } while (!(xy.x >= 0 && xy.y >= 0));
+
+    let rs = this.listJeu.filter(s => s.i == xy.x && s.j == xy.y)[0];
+    let index = this.listJeu.indexOf(rs);
+    rs.resultat = "O";
+    this.listJeu[index] = rs;
+    let resultat = this.verifVictory();
+    if (resultat == 0) {
+      console.log("victoire ordinateur");
+
+    } else if (resultat == 1) {
+      console.log("victoire joueur");
+
+    }
+  }
+
+  successProbabilite() {
+    let probabilite = [
+      [" ", " ", " "],
+      [" ", " ", " "],
+      [" ", " ", " "]
+    ];
+    for (let s of this.listJeu) {
+      probabilite[s.i][s.j] = s.resultat;
+    }
+    console.log("before init ", probabilite);
+
+
+    let probGame = (rs) => {
+      let prob = {
+        horizontal: [{
+          value: {
+            joueur: 0,
+            ordinateur: 0
+          },
+          occurence: [0, 0],
+          exclude: 0
+        },
+        {
+          value: {
+            joueur: 0,
+            ordinateur: 0
+          },
+          occurence: [0, 0],
+          exclude: 0
+        },
+        {
+          value: {
+            joueur: 0,
+            ordinateur: 0
+          },
+          occurence: [0, 0],
+          exclude: 0
+        }],
+        vertical: [{
+          value: {
+            joueur: 0,
+            ordinateur: 0
+          },
+          occurence: [0, 0],
+          exclude: 0
+        }, {
+          value: {
+            joueur: 0,
+            ordinateur: 0
+          },
+          occurence: [0, 0],
+          exclude: 0
+        }, {
+          value: {
+            joueur: 0,
+            ordinateur: 0
+          },
+          occurence: [0, 0],
+          exclude: 0
+        }],
+        diagonal: {
+          value: {
+            joueur: 0,
+            ordinateur: 0
+          },
+          occurence: [0, 0],
+          exclude: 0
+        },
+        diagonalInverse: {
+          value: {
+            joueur: 0,
+            ordinateur: 0
+          },
+          occurence: [0, 0],
+          exclude: 0
+        }
+      };
+
+      //Success
+      for (let i = 0; i < 3; i++) {
+        //diagonal
+        if (rs[i][i] == "X") {
+          prob.diagonal.value.joueur += 1 / 3;
+          prob.diagonal.occurence[0]++;
+          prob.diagonal.exclude++;
+          if (prob.diagonal.occurence[0] == 2) {
+            prob.diagonal.value.joueur += 1 / 3;
+          }
+        } else
+          if (rs[i][i] == "O") {
+            prob.diagonal.value.ordinateur += 1 / 3;
+            prob.diagonal.occurence[1]++;
+            prob.diagonal.exclude++;
+            if (prob.diagonal.occurence[1] == 2) {
+              prob.diagonal.value.ordinateur += 1 / 3;
+            }
+            if (prob.diagonal.value.joueur > 0) {
+              prob.diagonal.value.ordinateur -= 1 / 3;
+            }
+          }
+        for (let j = 0; j < 3; j++) {
+          //horizontal
+
+          if (rs[i][j] == "X") {
+            prob.horizontal[i].value.joueur += 1 / 3;
+            prob.horizontal[i].occurence[0]++;
+            prob.horizontal[i].exclude++;
+            if (prob.horizontal[i].occurence[0] == 2) {
+              prob.horizontal[i].value.joueur += 1 / 3;
+            }
+          } else
+            if (rs[i][j] == "O") {
+              prob.horizontal[i].value.ordinateur += 1 / 3;
+              prob.horizontal[i].occurence[1]++;
+              prob.horizontal[i].exclude++;
+              if (prob.horizontal[i].occurence[1] == 2) {
+                prob.horizontal[i].value.ordinateur += 1 / 3;
+              }
+              if (prob.horizontal[i].value.joueur > 0) {
+                prob.horizontal[i].value.ordinateur -= 1 / 3;
+              }
+            }
+          //vertical
+          console.log("diag xy ", j, i);
+          if (rs[j][i] == "X") {
+            prob.vertical[i].value.joueur += 1 / 3;
+            prob.vertical[i].occurence[0]++;
+            prob.vertical[i].exclude++;
+            if (prob.vertical[i].occurence[0] == 2) {
+              prob.vertical[i].value.joueur += 1 / 3;
+            }
+          } else
+            if (rs[j][i] == "O") {
+              prob.vertical[i].value.ordinateur += 1 / 3;
+              prob.vertical[i].occurence[1]++;
+              prob.vertical[i].exclude++;
+              if (prob.vertical[i].occurence[1] == 2) {
+                prob.vertical[i].value.ordinateur += 1 / 3;
+              }
+              if (prob.vertical[i].value.joueur > 0) {
+                prob.vertical[i].value.ordinateur -= 1 / 3;
+              }
+            }
         }
       }
-      let rs = this.listJeu.filter(s => s.i == max.i && s.j == max.j)[0];
-      let index = this.listJeu.indexOf(rs);
-      rs.resultat = "O";
-      this.listJeu[index] = rs;
-      let resultat = this.verifVictory();
-      if (resultat == 0) {
-        console.log("victoire ordinateur");
+      let v = 0;
+      //diagonal inverse
+      for (let i = 2; i >= 0; i--) {
 
-      } else if (resultat == 1) {
-        console.log("victoire joueur");
 
+        if (rs[v][i] == "X") {
+
+          prob.diagonalInverse.value.joueur += 1 / 3;
+          prob.diagonalInverse.occurence[0]++;
+          prob.diagonalInverse.exclude++;
+          if (prob.diagonalInverse.occurence[0] == 2) {
+            prob.diagonalInverse.value.joueur += 1 / 3;
+          }
+        } else
+          if (rs[v][i] == "O") {
+            prob.diagonalInverse.value.ordinateur += 1 / 3;
+            prob.diagonalInverse.occurence[1]++;
+            prob.diagonalInverse.exclude++;
+            if (prob.diagonalInverse.occurence[1] == 2) {
+              prob.diagonalInverse.value.ordinateur += 1 / 3;
+            }
+            if (prob.diagonalInverse.value.joueur > 0) {
+              prob.diagonalInverse.value.ordinateur -= 1 / 3;
+            }
+          }
+        v++;
       }
+      console.log("init ", prob);
+
+      //Max
+      let maxH = {
+        pourcentage: 0,
+        ligne: -1
+      }, maxV = {
+        pourcentage: 0,
+        col: -1
+      }, maxD = 0, maxDI = 0;
+      let cpt = 0;
+      for (let s of prob.horizontal) {
+        if ((s.value.ordinateur + s.value.joueur) > maxH.pourcentage && s.exclude != 3) {
+          maxH.pourcentage = s.value.ordinateur + s.value.joueur;
+          maxH.ligne = cpt;
+        }
+        cpt++;
+      }
+      cpt = 0;
+      for (let s of prob.vertical) {
+        if ((s.value.ordinateur + s.value.joueur) > maxV.pourcentage && s.exclude != 3) {
+          maxV.pourcentage = s.value.ordinateur + s.value.joueur;
+          maxV.col = cpt;
+        }
+        cpt++;
+      }
+
+
+
+      return {
+        horizontal: maxH,
+        vertical: maxV,
+        diagonal: { pourcentage: prob.diagonal.exclude == 3 ? 0 : (prob.diagonal.value.joueur + prob.diagonal.value.ordinateur) },
+        diagonalInverse: { pourcentage: prob.diagonalInverse.exclude == 3 ? 0 : (prob.diagonalInverse.value.joueur + prob.diagonalInverse.value.ordinateur) }
+      };
+    }
+
+    let resultatProb = probGame(probabilite);
+    console.log("probabilité ", resultatProb);
+    return resultatProb;
+
   }
-  
   isVictory(listJoueur) {
 
     let probabilite = [
-      [0,0,0],
-      [0,0,0],
-      [0,0,0]
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
     ];
-    let somme=(list)=>{
-      let cpt=0;
-      for(let s of list){
-        cpt+=s;
+    let somme = (list) => {
+      let cpt = 0;
+      for (let s of list) {
+        cpt += s;
       }
       return cpt;
     }
-    let vecteurInvariant=(nbre_iter,MatP)=>{
-      let lig=nbre_iter,col=nbre_iter;
-      let Pi_O=[(Math.random() * parseFloat("1.0")) + parseFloat("0.0"),(Math.random() * parseFloat("1.0")) + parseFloat("0.0"),(Math.random() * parseFloat("1.0")) + parseFloat("0.0")];
-      let somme_lig=somme(Pi_O);
-      for(let i=0;i<nbre_iter;i++){
-        Pi_O[i]=Pi_O[i]/somme_lig;
+    let vecteurInvariant = (nbre_iter, MatP) => {
+      console.log("chaine de markov ", MatP);
+      let lig = nbre_iter, col = nbre_iter;
+      let Pi_O = [(Math.random() * parseFloat("1.0")) + parseFloat("0.0"), (Math.random() * parseFloat("1.0")) + parseFloat("0.0"), (Math.random() * parseFloat("1.0")) + parseFloat("0.0")];
+      let somme_lig = somme(Pi_O);
+      for (let i = 0; i < nbre_iter; i++) {
+        Pi_O[i] = Pi_O[i] / somme_lig;
       }
-      console.log("vecteur inv ",Pi_O);
-      let X=Pi_O;
+      let multiplieur = (m, m2) => {
+        let s = 0, rs = [0, 0, 0];
+        for (let i = 0; i < nbre_iter; i++) {
+          s = 0;
+          for (let j = 0; j < nbre_iter; j++) {
+            s += m[i] * m2[j][i];
+          }
+          rs[i] = s;
+        }
+        return rs;
+      }
+      let X = Pi_O;
+      for (let i = 0; i < nbre_iter; i++) {
+        X = multiplieur(X, MatP);
+      }
+      console.log("vecteur inv ", X);
+      return X;
     }
-    
-    for(let i=0;i<3;i++){
-      let diviseur=somme(listJoueur[i]);
-      for(let j=0;j<3;j++){
-        probabilite[i][j]=listJoueur[i][j]?listJoueur[i][j]/diviseur:0;
+
+    for (let i = 0; i < 3; i++) {
+      let diviseur = somme(listJoueur[i]);
+      for (let j = 0; j < 3; j++) {
+        probabilite[i][j] = listJoueur[i][j] ? listJoueur[i][j] / diviseur : 0;
       }
     }
-    vecteurInvariant(3,probabilite);
-    return probabilite;
+    let rs = [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
+    ];
+    for (let i = 0; i < 3; i++) {
+      rs[i] = vecteurInvariant(3, probabilite);
+    }
+    return rs;
 
   }
   /**
@@ -348,7 +686,15 @@ export class AppComponent implements OnInit {
         console.log("victoire joueur");
 
       }
-      if (this.nbMoves == 4) {
+      let cpt=0;
+      for(let s of this.listJeu){
+        if(s.resultat=="X" || s.resultat=="O"){
+          cpt++;
+        }
+      }
+      console.log("cpt end game ",cpt);
+      
+      if (cpt >= 8) {
         return this.initGame();
       }
 
